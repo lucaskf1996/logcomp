@@ -17,7 +17,6 @@ class Tokenizer:
         while(len(self.origin)!=self.position):
             if(self.origin[self.position].isnumeric()):
                 num = self.origin[self.position]
-                # print(num)
                 self.position+=1
                 while(self.position != len(self.origin)):
                     if(self.origin[self.position].isnumeric()):
@@ -54,24 +53,23 @@ class Parser:
             result = Parser.tokens.actual.tokenValue
             Parser.tokens.selectNext()
             if(Parser.tokens.actual.tokenType == "PLUS" or Parser.tokens.actual.tokenType == "MINUS"):
-                while(True):
+                while(Parser.tokens.actual.tokenType == "PLUS" or Parser.tokens.actual.tokenType == "MINUS"):
                     if(Parser.tokens.actual.tokenType == "PLUS"):
                         Parser.tokens.selectNext()
                         if(Parser.tokens.actual.tokenType == "NUM"):
                             result+=Parser.tokens.actual.tokenValue
-                            Parser.tokens.selectNext()
                         else:
                             raise Exception("invalid sequence")
                     if(Parser.tokens.actual.tokenType == "MINUS"):
                         Parser.tokens.selectNext()
                         if(Parser.tokens.actual.tokenType == "NUM"):
                             result-=Parser.tokens.actual.tokenValue
-                            Parser.tokens.selectNext()
                         else:
                             raise Exception("invalid sequence")
-                    return result
+                    Parser.tokens.selectNext()
             else:
                 raise Exception("invalid sequence")
+            return result
         else:
             raise Exception("invalid sequence")
                     
