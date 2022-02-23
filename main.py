@@ -53,22 +53,25 @@ class Parser:
         if(Parser.tokens.actual.tokenType == "NUM"):
             result = Parser.tokens.actual.tokenValue
             Parser.tokens.selectNext()
-            while(Parser.tokens.actual.tokenType == "PLUS" or Parser.tokens.actual.tokenType == "MINUS"):
-                if(Parser.tokens.actual.tokenType == "PLUS"):
-                    Parser.tokens.selectNext()
-                    if(Parser.tokens.actual.tokenType == "NUM"):
-                        result+=Parser.tokens.actual.tokenValue
+            if(Parser.tokens.actual.tokenType == "PLUS" or Parser.tokens.actual.tokenType == "MINUS"):
+                while(True):
+                    if(Parser.tokens.actual.tokenType == "PLUS"):
                         Parser.tokens.selectNext()
-                    else:
-                        raise Exception("invalid sequence")
-                if(Parser.tokens.actual.tokenType == "MINUS"):
-                    Parser.tokens.selectNext()
-                    if(Parser.tokens.actual.tokenType == "NUM"):
-                        result-=Parser.tokens.actual.tokenValue
+                        if(Parser.tokens.actual.tokenType == "NUM"):
+                            result+=Parser.tokens.actual.tokenValue
+                            Parser.tokens.selectNext()
+                        else:
+                            raise Exception("invalid sequence")
+                    if(Parser.tokens.actual.tokenType == "MINUS"):
                         Parser.tokens.selectNext()
-                    else:
-                        raise Exception("invalid sequence")
-            return result
+                        if(Parser.tokens.actual.tokenType == "NUM"):
+                            result-=Parser.tokens.actual.tokenValue
+                            Parser.tokens.selectNext()
+                        else:
+                            raise Exception("invalid sequence")
+                    return result
+            else:
+                raise Exception("invalid sequence")
         else:
             raise Exception("invalid sequence")
                     
