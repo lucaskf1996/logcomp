@@ -1,4 +1,5 @@
 import sys
+import re
 
 class Token:
     def __init__(self, tokenType, tokenValue):
@@ -14,7 +15,7 @@ class Tokenizer:
 
     def selectNext(self):
         num=None
-        while(len(self.origin)!=self.position):
+        while(len(self.origin)>self.position):
             if(self.origin[self.position].isnumeric()):
                 num = self.origin[self.position]
                 self.position+=1
@@ -35,47 +36,81 @@ class Tokenizer:
                 self.actual = Token("MINUS", 0)
                 self.position+=1
                 return
-            elif(self.position == self.origin):
-                self.actual = Token("EOF", 0)
+            elif(self.origin[self.position] == "*" and self.actual.tokenType != "MULT"):
+                self.actual = Token("MULT", 0)
+                self.position+=1
+                return
+            elif(self.origin[self.position] == "/" and self.actual.tokenType != "DIV"):
+                self.actual = Token("DIV", 0)
+                self.position+=1
                 return
             elif(self.origin[self.position] == " "):
                 self.position+=1
                 continue
             else:
                 raise Exception("Invalid char")
+        self.actual = Token("EOF", 0)
+        return
+        
 
 class Parser:
     tokens = None
 
-    def parseExpression():
+    def parseTerm():
+        result = 0
         Parser.tokens.selectNext()
+        # print(Parser.tokens.actual.tokenType+'1')
         if(Parser.tokens.actual.tokenType == "NUM"):
             result = Parser.tokens.actual.tokenValue
             Parser.tokens.selectNext()
-            if(Parser.tokens.actual.tokenType == "PLUS" or Parser.tokens.actual.tokenType == "MINUS"):
-                while(Parser.tokens.actual.tokenType == "PLUS" or Parser.tokens.actual.tokenType == "MINUS"):
-                    if(Parser.tokens.actual.tokenType == "PLUS"):
+            # print(Parser.tokens.actual.tokenType+'2')
+            if(Parser.tokens.actual.tokenType == "MULT" or Parser.tokens.actual.tokenType == "DIV"):
+                while(Parser.tokens.actual.tokenType == "MULT" or Parser.tokens.actual.tokenType == "DIV"):
+                    if(Parser.tokens.actual.tokenType == "MULT"):
                         Parser.tokens.selectNext()
+                        # print(Parser.tokens.actual.tokenType+'3')
                         if(Parser.tokens.actual.tokenType == "NUM"):
-                            result+=Parser.tokens.actual.tokenValue
+                            result*=Parser.tokens.actual.tokenValue
                         else:
                             raise Exception("invalid sequence")
-                    if(Parser.tokens.actual.tokenType == "MINUS"):
+                    if(Parser.tokens.actual.tokenType == "DIV"):
                         Parser.tokens.selectNext()
+                        # print(Parser.tokens.actual.tokenType+'4')
                         if(Parser.tokens.actual.tokenType == "NUM"):
-                            result-=Parser.tokens.actual.tokenValue
+                            result/=Parser.tokens.actual.tokenValue
                         else:
                             raise Exception("invalid sequence")
                     Parser.tokens.selectNext()
+                    # print(Parser.tokens.actual.tokenType+'5')
+                return result
             else:
-                raise Exception("invalid sequence")
-            return result
+                return result
         else:
             raise Exception("invalid sequence")
+
+
+
+    def parseExpression():
+        result = 0
+        result += Parser.parseTerm()
+        while(True):
+            if(Parser.tokens.actual.tokenType == "PLUS" or Parser.tokens.actual.tokenType == "MINUS"):
+                if(Parser.tokens.actual.tokenType == "PLUS"):
+                    result+=Parser.parseTerm()
+                elif(Parser.tokens.actual.tokenType == "MINUS"):
+                    result-=Parser.parseTerm()
+            elif(Parser.tokens.actual.tokenType == "NUM"):
+                raise Exception("invalid sequence")
+            else:
+                return int(result)
+
+    
+    def code_cleanup(code):
+        return(re.sub(r'/[*](.*?)[*]/',"", code))
                     
     def run(code):
-        Parser.tokens = Tokenizer(code)
+        Parser.tokens = Tokenizer(Parser.code_cleanup(code))
         return(Parser.parseExpression())
 
 if __name__ == "__main__":
-    print(Parser.run(sys.argv[1]))    
+    print(Parser.run(sys.argv[1]))
