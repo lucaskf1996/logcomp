@@ -59,7 +59,6 @@ class Parser:
     def parseTerm():
         result = 0
         Parser.tokens.selectNext()
-        # print(Parser.tokens.actual.tokenType+'1')
         if(Parser.tokens.actual.tokenType == "NUM"):
             result = Parser.tokens.actual.tokenValue
             Parser.tokens.selectNext()
