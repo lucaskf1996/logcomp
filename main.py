@@ -6,39 +6,52 @@ class Node():
         pass
 
 class BinOp(Node):
-    def __init__(self, value, nodes[]):
+    def __init__(self, value, nodes):
         self.value = value
         self.children = nodes
 
+    def __repr__(self):
+        print(self.value, " children ->( ")
+        self.children[0].__repr__()
+        self.children[1].__repr__()
+        print(" ) ")
+
     def Evaluate(self):
-        if self.value == "+":
+        if self.value == "PLUS":
             return self.children[0].Evaluate() + self.children[1].Evaluate()
-        elif self.value == "-":
+        elif self.value == "MINUS":
             return self.children[0].Evaluate() - self.children[1].Evaluate()
-        elif self.value == "*":
+        elif self.value == "MULT":
             return self.children[0].Evaluate() * self.children[1].Evaluate()
-        elif self.value == "/":
+        elif self.value == "DIV":
             return self.children[0].Evaluate() // self.children[1].Evaluate()
         else:
             raise Exception("Evaluate Error")
 
 class UnOp(Node):
-    def __init__(self, value, children[]):
+    def __init__(self, value, children):
         self.value = value
         self.children = children
 
+    def __repr__(self):
+        print(self.value, " child -> ( ")
+        self.children.__repr__()
+        print(" ) ")
+
     def Evaluate(self):
-        if self.value == "+":
+        if self.value == "PLUS":
             return self.children[0].Evaluate()
-        elif self.value == "-":
+        elif self.value == "MINUS":
             return -self.children[0].Evaluate()
         else:
             raise Exception("Evaluate Error")
 
-class UnOp(Node):
-    def __init__(self, value, children[]):
+class IntVal(Node):
+    def __init__(self, value):
         self.value = value
-        self.children = children
+
+    def __repr__(self):
+        print(self.value, " ")
 
     def Evaluate(self):
         if self.value.isnumeric():
@@ -47,9 +60,14 @@ class UnOp(Node):
             raise Exception("Evaluate Error")
 
 class NoOp(Node):
-    def __init__(self, value, children[]):
+    def __init__(self, value, children):
         self.value = value
-        self.children = children
+        self.children = children    
+
+    def __repr__(self):
+        print(self.value, " children -> ")
+        self.children.__repr__()
+        self.children.__repr__()
 
     def Evaluate(self):
         if self.value.isnumeric():
@@ -80,9 +98,9 @@ class Tokenizer:
                         num = num + self.origin[self.position]
                         self.position+=1
                     else:
-                        self.actual = Token("NUM", int(num))
+                        self.actual = Token("NUM", num)
                         return
-                self.actual = Token("NUM", int(num))
+                self.actual = Token("NUM", num)
                 return
             elif(self.origin[self.position] == "+"):
                 self.actual = Token("PLUS", 0)
@@ -121,76 +139,61 @@ class Parser:
     tokens = None
 
     def Factor():
-        result = 0
         Parser.tokens.selectNext()
-        # print(Parser.tokens.actual.tokenValue)
         if(Parser.tokens.actual.tokenType == "NUM"):
-            result = Parser.tokens.actual.tokenValue
+            node = IntVal(Parser.tokens.actual.tokenValue)
             Parser.tokens.selectNext()
-            # print(Parser.tokens.actual.tokenType)
         elif(Parser.tokens.actual.tokenType == "MINUS"):
-            result-=Parser.Factor()
-            # Parser.tokens.selectNext()
+            node = UnOp(Parser.tokens.actual.tokenType, Parser.Factor())
         elif(Parser.tokens.actual.tokenType == "PLUS"):
-            result+=Parser.Factor()
-            # Parser.tokens.selectNext()
+            node = UnOp(Parser.tokens.actual.tokenType, Parser.Factor())
         elif(Parser.tokens.actual.tokenType == "OB"):
-            # Parser.tokens.selectNext()
-            result = Parser.parseExpression()
-            # print(result)
+            node = Parser.parseExpression()
             if(Parser.tokens.actual.tokenType == "CB"):
                 Parser.tokens.selectNext()
-                # print(Parser.tokens.actual.tokenType)s
-                # print(result)
-                return result
+                return node
             else:
                 raise Exception("invalid sequence2.1")
         else:
             raise Exception("invalid sequence2.2")
-        # print(result)
-        return result
+            
+        # print(Parser.tokens.actual.tokenType)
+        return node
 
     def parseTerm():
-        result = Parser.Factor()
-        # print(result)
+        node = Parser.Factor()
         # print(Parser.tokens.actual.tokenType)
         while(Parser.tokens.actual.tokenType == "MULT" or Parser.tokens.actual.tokenType == "DIV"):
             if(Parser.tokens.actual.tokenType == "MULT"):
-                result*=Parser.Factor()
+                node = BinOp(Parser.tokens.actual.tokenType, [node, Parser.Factor()])
             if(Parser.tokens.actual.tokenType == "DIV"):
-                result//=Parser.Factor()
-            # elif(Parser.tokens.actual.tokenType == "NUM"):
-            #     raise Exception("invalid sequence")
-        # print(result)
-        return result
-
-
+                node = BinOp(Parser.tokens.actual.tokenType, [node, Parser.Factor()])
+        return node
 
     def parseExpression():
-        result = Parser.parseTerm()
+        node = Parser.parseTerm()
         while(Parser.tokens.actual.tokenType == "PLUS" or Parser.tokens.actual.tokenType == "MINUS"):
             if(Parser.tokens.actual.tokenType == "PLUS"):
-                result+=Parser.parseTerm()
+                node = BinOp(Parser.tokens.actual.tokenType, [node, Parser.parseTerm()])
             elif(Parser.tokens.actual.tokenType == "MINUS"):
-                result-=Parser.parseTerm()
-            # elif(Parser.tokens.actual.tokenType == "NUM"):
-            #     raise Exception("invalid sequence")
-        # print(result)
-        return result
+                node = BinOp(Parser.tokens.actual.tokenType, [node, Parser.parseTerm()])
+        return node
 
     
+
     def code_cleanup(code):
         return(re.sub(r'/[*](.*?)[*]/',"", code))
                     
     def run(code):
         Parser.tokens = Tokenizer(Parser.code_cleanup(code))
-        # Parser.tokens.selectNext()
-        result = Parser.parseExpression()
+        root = Parser.parseExpression()
+        # root.__repr__()
+        # print(Parser.tokens.actual.tokenType)
         if(Parser.tokens.actual.tokenType == "EOF"):
-            return(result)
+            return root.Evaluate()
         else:
-            # print(Parser.tokens.actual.tokenValue)
             raise Exception("invalid sequence")
 
 if __name__ == "__main__":
+    # Parser.run(sys.argv[1])
     print(Parser.run(sys.argv[1]))
