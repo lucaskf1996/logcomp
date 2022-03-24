@@ -55,7 +55,7 @@ class IntVal(Node):
 
     def Evaluate(self):
         if self.value.isnumeric():
-            print(self.value)
+            # print(self.value)
             return int(self.value)
         else:
             raise Exception("Evaluate Error")
