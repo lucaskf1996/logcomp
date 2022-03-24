@@ -40,9 +40,9 @@ class UnOp(Node):
 
     def Evaluate(self):
         if self.value == "PLUS":
-            return self.children[0].Evaluate()
+            return self.children.Evaluate()
         elif self.value == "MINUS":
-            return -self.children[0].Evaluate()
+            return -self.children.Evaluate()
         else:
             raise Exception("Evaluate Error")
 
@@ -51,10 +51,11 @@ class IntVal(Node):
         self.value = value
 
     def __repr__(self):
-        print(self.value, " ")
+        print(int(self.value), " ")
 
     def Evaluate(self):
         if self.value.isnumeric():
+            print(self.value)
             return int(self.value)
         else:
             raise Exception("Evaluate Error")
