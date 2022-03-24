@@ -195,5 +195,7 @@ class Parser:
             raise Exception("invalid sequence")
 
 if __name__ == "__main__":
-    # Parser.run(sys.argv[1])
-    print(Parser.run(sys.argv[1]))
+    with open(sys.argv[1], 'r') as f:
+        contents = f.read()
+    print(Parser.run(contents))
+    # print(Parser.run(sys.argv[1]))
