@@ -102,7 +102,7 @@ class PrintOp(Node):
         self.child = child
     
     def __repr__(self):
-        print(self.value, " child -> ( ")
+        print("PRINTF", " child -> ( ")
         self.child.__repr__()
         print(" ) ")
 
@@ -150,8 +150,8 @@ class Tokenizer:
                         alpha = alpha + self.origin[self.position]
                         self.position+=1
                     else:
-                        if(alpha == "print"):
-                            self.actual = Token("PRINT", 0)
+                        if(alpha == "printf"):
+                            self.actual = Token("PRINTF", 0)
                             return
                         self.actual = Token("ID", alpha)
                         return
@@ -320,7 +320,7 @@ class Parser:
                     raise Exception("missing semi colon")
             else:
                 raise Exception("invalid sequence")
-        elif(Parser.tokens.actual.tokenType == "PRINT"):
+        elif(Parser.tokens.actual.tokenType == "PRINTF"):
             node = PrintOp(Parser.parseExpression())
             if(Parser.tokens.actual.tokenType == "SC"):
                 return node
@@ -336,6 +336,7 @@ class Parser:
         Parser.symbolTable = SymbolTable()
         Parser.tokens = Tokenizer(Parser.code_cleanup(code))
         root = Parser.parseBlock()
+        # root.__repr__()
         if(Parser.tokens.actual.tokenType == "EOF"):
             return root.Evaluate(Parser.symbolTable)
         else:
