@@ -147,8 +147,8 @@ class WhileOp(Node):
         print(" ) ")
     
     def Evaluate(self, symbolTable):
-        while(self.children[0].Evaluate()):
-            self.children[1].Evaluate()
+        while(self.children[0].Evaluate(symbolTable)):
+            self.children[1].Evaluate(symbolTable)
         return
 
 class IfOp(Node):
@@ -192,6 +192,7 @@ class Tokenizer:
         self.actual = Token(None, None) 
 
     def selectNext(self):
+        printteste = 0
         num=None
         while(len(self.origin)>self.position):
             if(self.origin[self.position] == "\n"):
@@ -207,26 +208,26 @@ class Tokenizer:
                     else:
                         if(alpha == "printf"):
                             self.actual = Token("PRINTF", 0)
-                            # print(self.actual.tokenType)
+                            if(printteste): print(self.actual.tokenType)
                             return
                         elif(alpha == "scanf"):
                             self.actual = Token("SCANF", 0)
-                            # print(self.actual.tokenType)
+                            if(printteste): print(self.actual.tokenType)
                             return
                         elif(alpha == "while"):
                             self.actual = Token("WHILE", 0)
-                            # print(self.actual.tokenType)
+                            if(printteste): print(self.actual.tokenType)
                             return
                         elif(alpha == "if"):
                             self.actual = Token("IF", 0)
-                            # print(self.actual.tokenType)
+                            if(printteste): print(self.actual.tokenType)
                             return
                         elif(alpha == "else"):
                             self.actual = Token("ELSE", 0)
-                            # print(self.actual.tokenType)
+                            if(printteste): print(self.actual.tokenType)
                             return
                         self.actual = Token("ID", alpha)
-                        # print(self.actual.tokenType)
+                        if(printteste): print(self.actual.tokenType)
                         return
             elif(self.origin[self.position].isnumeric()):
                 num = self.origin[self.position]
@@ -237,92 +238,92 @@ class Tokenizer:
                         self.position+=1
                     else:
                         self.actual = Token("NUM", num)
-                        # print(self.actual.tokenType)
+                        if(printteste): print(self.actual.tokenType)
                         return
                 self.actual = Token("NUM", num)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 return
             elif(self.origin[self.position] == "+"):
                 self.actual = Token("PLUS", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=1
                 return
             elif(self.origin[self.position] == "-"):
                 self.actual = Token("MINUS", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=1
                 return
             elif(self.origin[self.position] == "*"):
                 self.actual = Token("MULT", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=1
                 return
             elif(self.origin[self.position] == "/"):
                 self.actual = Token("DIV", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=1
                 return
             elif(self.origin[self.position] == "("):
                 self.actual = Token("OP", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=1
                 return
             elif(self.origin[self.position] == ")"):
                 self.actual = Token("CP", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=1
                 return
             elif(self.origin[self.position] == "{"):
                 self.actual = Token("OBLOCK", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=1
                 return
             elif(self.origin[self.position] == "}"):
                 self.actual = Token("CBLOCK", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=1
                 return
             elif(self.origin[self.position] == ";"):
                 self.actual = Token("SC", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=1
                 return
             elif(self.origin[self.position] == "="):
                 if(self.origin[self.position+1] == "="):
                     self.actual = Token("BOOLEQUAL", 0)
-                    # print(self.actual.tokenType)
+                    if(printteste): print(self.actual.tokenType)
                     self.position+=2
                     return
                 else:
                     self.actual = Token("EQUAL", 0)
-                    # print(self.actual.tokenType)
+                    if(printteste): print(self.actual.tokenType)
                     self.position+=1
                     return
             elif(self.origin[self.position] == "<"):
                 self.actual = Token("LESS", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=1
                 return
             elif(self.origin[self.position] == ">"):
                 self.actual = Token("MORE", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=1
                 return
             elif(self.origin[self.position] == "&"):
                 if(self.origin[self.position+1] == "&"):
                     self.actual = Token("AND", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=2
                 return
             elif(self.origin[self.position] == "|"):
                 if(self.origin[self.position+1] == "|"):
                     self.actual = Token("OR", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=2
                 return
             elif(self.origin[self.position] == "!"):
                 self.actual = Token("NOT", 0)
-                # print(self.actual.tokenType)
+                if(printteste): print(self.actual.tokenType)
                 self.position+=1
                 return
             elif(self.origin[self.position] == " "):
@@ -360,7 +361,7 @@ class Parser:
     def Factor():
         # print(Parser.tokens.actual.tokenType)
         Parser.tokens.selectNext()
-        # print(Parser.tokens.actual.tokenType)
+        # print("Factor"+Parser.tokens.actual.tokenType)
         if(Parser.tokens.actual.tokenType == "NUM"):
             node = IntVal(Parser.tokens.actual.tokenValue)
             # print("numero")
@@ -371,10 +372,13 @@ class Parser:
             Parser.tokens.selectNext()
         elif(Parser.tokens.actual.tokenType == "MINUS"):
             node = UnOp(Parser.tokens.actual.tokenType, Parser.Factor())
+            Parser.tokens.selectNext()
         elif(Parser.tokens.actual.tokenType == "PLUS"):
             node = UnOp(Parser.tokens.actual.tokenType, Parser.Factor())
+            Parser.tokens.selectNext()
         elif(Parser.tokens.actual.tokenType == "NOT"):
             node = UnOp(Parser.tokens.actual.tokenType, Parser.Factor())
+            Parser.tokens.selectNext()
         elif(Parser.tokens.actual.tokenType == "SCANF"):
             node = ScanOp()
             Parser.tokens.selectNext()
@@ -389,7 +393,7 @@ class Parser:
             else:
                 raise Exception("invalid sequence")
         elif(Parser.tokens.actual.tokenType == "OP"):
-            node = Parser.parseExpression()
+            node = Parser.parseRelationalExpression()
             if(Parser.tokens.actual.tokenType == "CP"):
                 Parser.tokens.selectNext()
                 return node
@@ -403,7 +407,7 @@ class Parser:
 
     def parseTerm():
         node = Parser.Factor()
-        # print(Parser.tokens.actual.tokenType)
+        # print("Term"+Parser.tokens.actual.tokenType)
         while(Parser.tokens.actual.tokenType == "MULT" or Parser.tokens.actual.tokenType == "DIV" or Parser.tokens.actual.tokenType == "AND"):
             if(Parser.tokens.actual.tokenType == "MULT"):
                 node = BinOp(Parser.tokens.actual.tokenType, [node, Parser.Factor()])
@@ -415,6 +419,7 @@ class Parser:
 
     def parseExpression():
         node = Parser.parseTerm()
+        # print("Expression"+Parser.tokens.actual.tokenType)
         while(Parser.tokens.actual.tokenType == "PLUS" or Parser.tokens.actual.tokenType == "MINUS" or Parser.tokens.actual.tokenType == "OR"):
             if(Parser.tokens.actual.tokenType == "PLUS"):
                 node = BinOp(Parser.tokens.actual.tokenType, [node, Parser.parseTerm()])
@@ -427,6 +432,7 @@ class Parser:
     def parseRelationalExpression():
         node = Parser.parseExpression()
         # node.__repr__()
+        # print("RelExp"+Parser.tokens.actual.tokenType)
         while(Parser.tokens.actual.tokenType == "BOOLEQUAL" or Parser.tokens.actual.tokenType == "LESS" or Parser.tokens.actual.tokenType == "MORE"):
             if(Parser.tokens.actual.tokenType == "BOOLEQUAL"):
                 node = BinOp(Parser.tokens.actual.tokenType, [node, Parser.parseExpression()])
@@ -448,14 +454,14 @@ class Parser:
                 node.addChild(Parser.parseStatement())
                 # node.__repr__()
                 # Parser.tokens.selectNext()
-            # Parser.tokens.selectNext()
+            Parser.tokens.selectNext()
         else:
             raise Exception("Block not opened")
         return node
 
     def parseStatement():
         # Parser.tokens.selectNext()
-        # print("kek" + Parser.tokens.actual.tokenType)
+        # print("Statement" + Parser.tokens.actual.tokenType)
         if(Parser.tokens.actual.tokenType == "SC"):
             node = NoOp()
             Parser.tokens.selectNext()
@@ -495,9 +501,11 @@ class Parser:
             Parser.tokens.selectNext()
             if(Parser.tokens.actual.tokenType == "OP"):
                 child1 = Parser.parseRelationalExpression()
+                # Parser.tokens.selectNext()
                 if(Parser.tokens.actual.tokenType == "CP"):
-                    node = WhileOp(child1, Parser.parseStatement())
                     Parser.tokens.selectNext()
+                    node = WhileOp([child1, Parser.parseStatement()])
+                    # print("kek" + Parser.tokens.actual.tokenType)
                     return node
                 else:
                     raise Exception("missing parenthesis")
@@ -531,8 +539,21 @@ class Parser:
             # print("teste"+Parser.tokens.actual.tokenType)
             return Parser.parseBlock()
 
-    def code_cleanup(code):
+    def code_cleanup1(code):
         return(re.sub(r'/[*](.*?)[*]/',"", code))
+
+    def code_cleanup(text): # FROM https://stackoverflow.com/questions/241327/remove-c-and-c-comments-using-python
+        def replacer(match):
+            s = match.group(0)
+            if s.startswith('/'):
+                return " " # note: a space and not an empty string
+            else:
+                return s
+        pattern = re.compile(
+            r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"',
+            re.DOTALL | re.MULTILINE
+        )
+        return re.sub(pattern, replacer, text)
                     
     def run(code):
         Parser.symbolTable = SymbolTable()
