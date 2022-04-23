@@ -148,6 +148,7 @@ class WhileOp(Node):
     
     def Evaluate(self, symbolTable):
         while(self.children[0].Evaluate(symbolTable)):
+            # self.children[1].__repr__()
             self.children[1].Evaluate(symbolTable)
         return
 
@@ -167,8 +168,7 @@ class IfOp(Node):
         if(self.children[0].Evaluate(symbolTable)):
             self.children[1].Evaluate(symbolTable)
         else:
-            if(self.children[2] != None):
-                self.children[2].Evaluate(symbolTable)
+            self.children[2].Evaluate(symbolTable)
         return
 
 class ScanOp(Node):
@@ -188,7 +188,7 @@ class Tokenizer:
 
     def __init__(self, origin):
         self.origin = origin 
-        self.position = 0 
+        self.position = 0
         self.actual = Token(None, None) 
 
     def selectNext(self):
@@ -372,13 +372,13 @@ class Parser:
             Parser.tokens.selectNext()
         elif(Parser.tokens.actual.tokenType == "MINUS"):
             node = UnOp(Parser.tokens.actual.tokenType, Parser.Factor())
-            Parser.tokens.selectNext()
+            # Parser.tokens.selectNext()
         elif(Parser.tokens.actual.tokenType == "PLUS"):
             node = UnOp(Parser.tokens.actual.tokenType, Parser.Factor())
-            Parser.tokens.selectNext()
+            # Parser.tokens.selectNext()
         elif(Parser.tokens.actual.tokenType == "NOT"):
             node = UnOp(Parser.tokens.actual.tokenType, Parser.Factor())
-            Parser.tokens.selectNext()
+            # Parser.tokens.selectNext()
         elif(Parser.tokens.actual.tokenType == "SCANF"):
             node = ScanOp()
             Parser.tokens.selectNext()
@@ -447,13 +447,14 @@ class Parser:
         # print("lol" + Parser.tokens.actual.tokenType)
         if(Parser.tokens.actual.tokenType == "OBLOCK"):
             Parser.tokens.selectNext()
-            # print(Parser.tokens.actual.tokenType)
             while(Parser.tokens.actual.tokenType != "CBLOCK"):
+                # node.__repr__()
                 if(Parser.tokens.actual.tokenType == "EOF"):
                     raise Exception("Block not closed")
                 node.addChild(Parser.parseStatement())
+                # print("teste"+Parser.tokens.actual.tokenType)
+                # print("teste"+Parser.tokens.actual.tokenType)
                 # node.__repr__()
-                # Parser.tokens.selectNext()
             Parser.tokens.selectNext()
         else:
             raise Exception("Block not opened")
@@ -473,7 +474,7 @@ class Parser:
             if(Parser.tokens.actual.tokenType == "EQUAL"):
                 node = AssignOp([node, Parser.parseRelationalExpression()], "=")
                 if(Parser.tokens.actual.tokenType == "SC"):
-                    # Parser.tokens.selectNext()
+                    Parser.tokens.selectNext()
                     # print("teste"+Parser.tokens.actual.tokenType)
                     return node
                 else:
@@ -488,7 +489,6 @@ class Parser:
                 if(Parser.tokens.actual.tokenType == "CP"):
                     Parser.tokens.selectNext()
                     if(Parser.tokens.actual.tokenType == "SC"):
-                        # print("kek" + Parser.tokens.actual.tokenType)
                         Parser.tokens.selectNext()
                         return node
                     else:
@@ -504,8 +504,10 @@ class Parser:
                 # Parser.tokens.selectNext()
                 if(Parser.tokens.actual.tokenType == "CP"):
                     Parser.tokens.selectNext()
-                    node = WhileOp([child1, Parser.parseStatement()])
                     # print("kek" + Parser.tokens.actual.tokenType)
+                    node = WhileOp([child1, Parser.parseStatement()])
+                    # node.__repr__()
+                    # Parser.tokens.selectNext()
                     return node
                 else:
                     raise Exception("missing parenthesis")
@@ -520,24 +522,23 @@ class Parser:
                 if(Parser.tokens.actual.tokenType == "CP"):
                     Parser.tokens.selectNext()
                     child2 = Parser.parseStatement()
-                    child3 = None
-                    Parser.tokens.selectNext()
+                    child3 = NoOp()
+                    # Parser.tokens.selectNext()
                     if(Parser.tokens.actual.tokenType == "ELSE"):
                         # print("teste" + Parser.tokens.actual.tokenType)
                         Parser.tokens.selectNext()
                         child3 = Parser.parseStatement()
-                        node = IfOp([child1, child2, child3])
-                    else:    
-                        node = IfOp([child1, child2, child3])
-                        # Parser.tokens.selectNext()
+                    node = IfOp([child1, child2, child3])
                     return node
                 else:
                     raise Exception("missing parenthesis")
             else:
                 raise Exception("missing parenthesis")
-        else:
-            # print("teste"+Parser.tokens.actual.tokenType)
-            return Parser.parseBlock()
+        elif(Parser.tokens.actual.tokenType == "OBLOCK"):
+            # print("lol"+Parser.tokens.actual.tokenType)
+            # Parser.tokens.selectNext()
+            node = Parser.parseBlock()
+            return node
 
     def code_cleanup1(code):
         return(re.sub(r'/[*](.*?)[*]/',"", code))
@@ -560,7 +561,7 @@ class Parser:
         Parser.tokens = Tokenizer(Parser.code_cleanup(code))
         Parser.tokens.selectNext()
         root = Parser.parseBlock()
-        Parser.tokens.selectNext()
+        # Parser.tokens.selectNext()
         # root.__repr__()
         if(Parser.tokens.actual.tokenType == "EOF"):
             return root.Evaluate(Parser.symbolTable)
