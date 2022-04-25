@@ -192,7 +192,7 @@ class Tokenizer:
         self.actual = Token(None, None) 
 
     def selectNext(self):
-        printteste = 1
+        printteste = 0
         num=None
         while(len(self.origin)>self.position):
             if(self.origin[self.position] == "\n"):
