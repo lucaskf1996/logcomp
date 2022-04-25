@@ -192,7 +192,7 @@ class Tokenizer:
         self.actual = Token(None, None) 
 
     def selectNext(self):
-        printteste = 0
+        printteste = 1
         num=None
         while(len(self.origin)>self.position):
             if(self.origin[self.position] == "\n"):
@@ -236,6 +236,8 @@ class Tokenizer:
                     if(self.origin[self.position].isnumeric()):
                         num = num + self.origin[self.position]
                         self.position+=1
+                    elif(self.origin[self.position].isalpha() or self.origin[self.position] == "_"):
+                        raise Exception("invalid number")
                     else:
                         self.actual = Token("NUM", num)
                         if(printteste): print(self.actual.tokenType)
@@ -525,9 +527,9 @@ class Parser:
                     child3 = NoOp()
                     # Parser.tokens.selectNext()
                     if(Parser.tokens.actual.tokenType == "ELSE"):
-                        # print("teste" + Parser.tokens.actual.tokenType)
                         Parser.tokens.selectNext()
                         child3 = Parser.parseStatement()
+                        # print("teste" + Parser.tokens.actual.tokenType)
                     node = IfOp([child1, child2, child3])
                     return node
                 else:
@@ -539,6 +541,8 @@ class Parser:
             # Parser.tokens.selectNext()
             node = Parser.parseBlock()
             return node
+        else:
+            raise Exception("invalid sequence")
 
     def code_cleanup1(code):
         return(re.sub(r'/[*](.*?)[*]/',"", code))
