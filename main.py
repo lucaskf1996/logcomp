@@ -195,7 +195,7 @@ class AssignOp(Node):
         print(" ) ")
 
     def Evaluate(self, symbolTable):
-        symbolTable.setValue(self.children[0].value, self.children[1].Evaluate(symbolTable)[0])
+        symbolTable.setValue(self.children[0].value, self.children[1].Evaluate(symbolTable))
         return
 
 class WhileOp(Node):
@@ -258,7 +258,11 @@ class ScanOp(Node):
         print("SCAN")
     
     def Evaluate(self, symbolTable):
-        return (input(), "str")
+        try:
+            inp = int(input())
+        except:
+            raise Exception("not a int")
+        return (inp, "int")
 
 class Token:
     def __init__(self, tokenType, tokenValue):
@@ -460,16 +464,21 @@ class SymbolTable:
             raise Exception("variable is not declared")
     
     def setValue(self, identifier, value):
+        print(value)
         if(identifier in self.table.keys()):
-            if(self.table[identifier][1] == "int"):
-                self.table[identifier][0] = int(value)
+            if(self.table[identifier][1] == "int" and value[1] == "int"):
+                self.table[identifier][0] = value[0]
             else:
-                
-                self.table[identifier][0] = value
+                if(value[1] == "str"):
+                    self.table[identifier][0] = value
+                else:
+                    raise Exception("cannot add an int to a str variable")
         else:
             raise Exception("variable is not declared")
 
     def create(self, identifier, value):
+        if(identifier in self.table.keys()):
+            raise Exception("variable cannot be redeclared")
         if(value == 0):
             self.table[identifier] = [None, "int"]
         elif(value == 1):
