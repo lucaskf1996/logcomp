@@ -43,27 +43,42 @@ class BinOp(Node):
         elif self.value == "BOOLEQUAL":
             # print(type(self.children[0]), type(self.children[1]))
             if(child1[1] == child2[1]):
-                return (child1[0] == child2[0], "int")
+                if(child1[0] == child2[0]):
+                    return (1, "int")
+                else:
+                    return (0, "int")
             else:
                 raise Exception("cannot compare int with str")
         elif self.value == "LESS":
             if(child1[1] == child2[1]):
-                return (child1[0] < child2[0], "int")
+                if(child1[0] < child2[0]):
+                    return (1, "int")
+                else:
+                    return (0, "int")
             else:
                 raise Exception("cannot compare int with str")
         elif self.value == "MORE":
             if(child1[1] == child2[1]):
-                return (child1[0] > child2[0], "int")
+                if(child1[0] > child2[0]):
+                    return (1, "int")
+                else:
+                    return (0, "int")
             else:
                 raise Exception("cannot compare int with str")
         elif self.value == "OR":
             if(child1[1] == child2[1]):
-                return (child1[0] or child2[0], "int")
+                if(child1[0] or child2[0]):
+                    return (1, "int")
+                else:
+                    return (0, "int")
             else:
                 raise Exception("cannot compare int with str")
         elif self.value == "AND":
             if(child1[1] == child2[1]):
-                return (child1[0] and child2[0], "int")
+                if(child1[0] and child2[0]):
+                    return (1, "int")
+                else:
+                    return (0, "int")
             else:
                 raise Exception("cannot compare int with str")
         elif self.value == "CONCAT":
@@ -417,6 +432,11 @@ class Tokenizer:
                 if(printteste): print(self.actual.tokenType)
                 self.position+=1
                 return
+            elif(self.origin[self.position] == "."):
+                self.actual = Token("CONCAT", 0)
+                if(printteste): print(self.actual.tokenType)
+                self.position+=1
+                return
             elif(self.origin[self.position] == " "):
                 self.position+=1
                 continue
@@ -524,13 +544,16 @@ class Parser:
     def parseExpression():
         node = Parser.parseTerm()
         # print("Expression"+Parser.tokens.actual.tokenType)
-        while(Parser.tokens.actual.tokenType == "PLUS" or Parser.tokens.actual.tokenType == "MINUS" or Parser.tokens.actual.tokenType == "OR"):
+        while(Parser.tokens.actual.tokenType == "PLUS" or Parser.tokens.actual.tokenType == "MINUS" or Parser.tokens.actual.tokenType == "OR" or Parser.tokens.actual.tokenType == "CONCAT"):
             if(Parser.tokens.actual.tokenType == "PLUS"):
                 node = BinOp(Parser.tokens.actual.tokenType, [node, Parser.parseTerm()])
             elif(Parser.tokens.actual.tokenType == "MINUS"):
                 node = BinOp(Parser.tokens.actual.tokenType, [node, Parser.parseTerm()])
             elif(Parser.tokens.actual.tokenType == "OR"):
                 node = BinOp(Parser.tokens.actual.tokenType, [node, Parser.parseTerm()])
+            elif(Parser.tokens.actual.tokenType == "CONCAT"):
+                node = BinOp(Parser.tokens.actual.tokenType, [node, Parser.parseTerm()])
+            
         return node
 
     def parseRelationalExpression():
