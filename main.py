@@ -464,13 +464,13 @@ class SymbolTable:
             raise Exception("variable is not declared")
     
     def setValue(self, identifier, value):
-        print(value)
+        # print(value)
         if(identifier in self.table.keys()):
             if(self.table[identifier][1] == "int" and value[1] == "int"):
                 self.table[identifier][0] = value[0]
             else:
                 if(value[1] == "str"):
-                    self.table[identifier][0] = value
+                    self.table[identifier][0] = value[0]
                 else:
                     raise Exception("cannot add an int to a str variable")
         else:
@@ -618,6 +618,7 @@ class Parser:
                             raise Exception("not a valid variable")
                     else:
                         raise Exception("not a valid variable")
+                Parser.tokens.selectNext()
             else:
                 raise Exception("not a valid variable")
         elif(Parser.tokens.actual.tokenType == "ID"):
