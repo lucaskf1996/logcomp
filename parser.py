@@ -2,6 +2,7 @@ from ast import (Node, BinOp, UnOp, IntVal, StrVal, IdOp, NoOp, Block, PrintOp, 
 from st import SymbolTable
 from tokens import (Token, Tokenizer)
 import re
+from writer import Writer
 
 class Parser:
 
@@ -232,17 +233,10 @@ class Parser:
         Parser.symbolTable = SymbolTable()
         Parser.tokens = Tokenizer(Parser.code_cleanup(code))
         Parser.tokens.selectNext()
+        Parser.writer = Writer()
         root = Parser.parseBlock()
         if(Parser.tokens.actual.tokenType == "EOF"):
-            asm_code = root.Evaluate(Parser.symbolTable)
-            with open("header.asm", 'r') as file:
-                header = file.read()
-            with open("end.asm", 'r') as file:
-                end = file.read()
-            assembly = header + asm_code + end
-            with open("code.asm", 'w') as file:
-                file.write(assembly)
-
-
+            root.Evaluate(Parser.symbolTable, Parser.writer)
+            
         else:
             raise Exception("invalid sequence")

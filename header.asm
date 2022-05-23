@@ -55,6 +55,10 @@ print_exit:
   RET
 
 ; subrotinas if/while
+binop_jne:
+  JNE binop_true
+  JMP binop_false
+
 binop_je:
   JE binop_true
   JMP binop_false
@@ -73,6 +77,18 @@ binop_false:
 binop_true:
   MOV EBX, True
 binop_exit:
+  RET
+
+bool_transform:
+  CMP EBX, False
+  CALL binop_jne
+  MOV EBX, True
+  PUSH EBX
+  MOV EBX, EAX
+  POP EAX
+  CMP EBX, False
+  CALL binop_jne
+  MOV EBX, True
   RET
 
 _start:
