@@ -229,11 +229,11 @@ class Parser:
         )
         return re.sub(pattern, replacer, text)
                     
-    def run(code):
+    def run(code, fileName):
         Parser.symbolTable = SymbolTable()
         Parser.tokens = Tokenizer(Parser.code_cleanup(code))
         Parser.tokens.selectNext()
-        Parser.writer = Writer()
+        Parser.writer = Writer(fileName[:fileName.find(".")])
         root = Parser.parseBlock()
         if(Parser.tokens.actual.tokenType == "EOF"):
             root.Evaluate(Parser.symbolTable, Parser.writer)

@@ -77,8 +77,7 @@ class BinOp(Node):
                 raise Exception("cannot compare int with str")
         elif self.value == "OR":
             if(child1[1] == child2[1]):
-                writer.write(f"CALL bool_transform")
-                writer.write(f"ADD EBX, EAX")
+                writer.write(f"OR EBX, EAX")
                 writer.write(f"CMP EBX, 0")
                 writer.write(f"CALL binop_jg")
                 if(child1[0] or child2[0]):
