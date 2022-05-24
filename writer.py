@@ -10,7 +10,7 @@ class Writer():
 
     def write(self, code):
         if("ELSE" in code):
-            self.elseNum += 1
+            self.ifNum += 1
         if("WHILE" in code):
             self.whileNum += 1
         self.assembly+="\n"+code
