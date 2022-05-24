@@ -1,7 +1,7 @@
 class SymbolTable:
     def __init__(self):
         self.table = {}
-        self.id = 0
+        self.id = -4
     
     def getValue(self, identifier):
         try:
@@ -26,7 +26,7 @@ class SymbolTable:
         if(identifier in self.table.keys()):
             raise Exception("variable cannot be redeclared")
         if(value == 0):
-            self.table[identifier] = [None, "int", f"EBP-{self.id}"]
+            self.table[identifier] = [None, "int", f"[EBP{self.id}]"]
         elif(value == 1):
-            self.table[identifier] = [None, "str", f"EBP-{self.id}"]
+            self.table[identifier] = [None, "str", f"[EBP-{self.id}]"]
         self.id -= 4

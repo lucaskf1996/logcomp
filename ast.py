@@ -15,9 +15,9 @@ class BinOp(Node):
         print(" ) ")
 
     def Evaluate(self, symbolTable, writer):
-        child1 = self.children[0].Evaluate(symbolTable)
+        child1 = self.children[0].Evaluate(symbolTable, writer)
         writer.write(f"PUSH EBX")
-        child2 = self.children[1].Evaluate(symbolTable)
+        child2 = self.children[1].Evaluate(symbolTable, writer)
         writer.write(f"POP EAX")
         # print(child1, child2)
         if self.value == "PLUS":
@@ -115,7 +115,7 @@ class UnOp(Node):
         print(" ) ")
 
     def Evaluate(self, symbolTable, writer):
-        child = self.children.Evaluate(symbolTable)
+        child = self.children.Evaluate(symbolTable, writer)
         if child[1] != "int":
             raise Exception("cannot make operation with str")
         if self.value == "PLUS":
@@ -171,8 +171,8 @@ class IdOp(Node):
     
     def Evaluate(self, symbolTable, writer):
         id = symbolTable.getValue(self.value)
-        writer.write(f"MOV EBX, {id[0]}")
-        writer.write(f"MOV [{id[2]}], EBX")
+        writer.write(f"MOV EBX, {id[2]}")
+        # writer.write(f"MOV [{id[2]}], EBX")
         return symbolTable.getValue(self.value) #ja retorna como tupla
 
 class Block(Node):
@@ -190,7 +190,7 @@ class Block(Node):
 
     def Evaluate(self, symbolTable, writer):
         for child in self.children:
-            child.Evaluate(symbolTable)
+            child.Evaluate(symbolTable, writer)
 
 class PrintOp(Node):
     def __init__(self, child):
@@ -202,7 +202,8 @@ class PrintOp(Node):
         print(" ) ")
 
     def Evaluate(self, symbolTable, writer):
-        child = self.child.Evaluate(symbolTable)[0]
+        writer.write(f"\n")
+        child = self.child.Evaluate(symbolTable, writer)[0]
         writer.write(f"PUSH EBX")
         writer.write(f"CALL print")
         writer.write(f"POP EBX")
@@ -220,10 +221,11 @@ class AssignOp(Node):
         print(" ) ")
 
     def Evaluate(self, symbolTable, writer):
-        child = self.children[1].Evaluate(symbolTable)
+        writer.write(f"\n")
+        child = self.children[1].Evaluate(symbolTable, writer)
         id = symbolTable.getValue(self.children[0].value)[2]
         symbolTable.setValue(self.children[0].value, child)
-        writer.write(f"MOV EBX, {child[0]}")
+        # writer.write(f"MOV EBX, {child[0]}")
         writer.write(f"MOV {id}, EBX")
         return
 
@@ -238,12 +240,13 @@ class WhileOp(Node):
         print(" ) ")
     
     def Evaluate(self, symbolTable, writer):
+        writer.write(f"\n")
         writer.write(f"WHILE{writer.whileNum}:")
-        self.children[0].Evaluate(symbolTable)[0]
+        self.children[0].Evaluate(symbolTable, writer)[0]
         writer.write(f"CMP EBX, False")
-        writer.write(f"JE, ENDWHILE{writer.whileNum}")
-        self.children[1].Evaluate(symbolTable)
-        writer.write(f"JMP, WHILE{writer.whileNum}")
+        writer.write(f"JE ENDWHILE{writer.whileNum}")
+        self.children[1].Evaluate(symbolTable, writer)
+        writer.write(f"JMP WHILE{writer.whileNum}")
         writer.write(f"ENDWHILE{writer.whileNum}")
         return
 
@@ -260,13 +263,14 @@ class IfOp(Node):
         print(" ) ")
     
     def Evaluate(self, symbolTable, writer):
-        self.children[0].Evaluate(symbolTable)[0]
+        self.children[0].Evaluate(symbolTable, writer)[0]
+        writer.write(f"\n")
         writer.write(f"CMP EBX, True")
-        writer.write(f"JNE, IF{writer.ifNum};")
-        self.children[2].Evaluate(symbolTable)
-        writer.write(f"JMP, ENDIF{writer.ifNum}")
+        writer.write(f"JNE IF{writer.ifNum};")
+        self.children[2].Evaluate(symbolTable, writer)
+        writer.write(f"JMP ENDIF{writer.ifNum}")
         writer.write(f"IF{writer.ifNum}:")
-        self.children[1].Evaluate(symbolTable)
+        self.children[1].Evaluate(symbolTable, writer)
         writer.write(f"ENDIF{writer.ifNum}:")
         return
 

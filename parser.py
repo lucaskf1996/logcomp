@@ -237,6 +237,7 @@ class Parser:
         root = Parser.parseBlock()
         if(Parser.tokens.actual.tokenType == "EOF"):
             root.Evaluate(Parser.symbolTable, Parser.writer)
+            Parser.writer.end()
             
         else:
             raise Exception("invalid sequence")
