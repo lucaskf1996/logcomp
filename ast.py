@@ -246,7 +246,7 @@ class WhileOp(Node):
         writer.write(f"JE ENDWHILE{whileNum}")
         self.children[1].Evaluate(symbolTable, writer)
         writer.write(f"JMP WHILE{whileNum}")
-        writer.write(f"ENDWHILE{whileNum}")
+        writer.write(f"ENDWHILE{whileNum}:")
         return
 
 class IfOp(Node):
