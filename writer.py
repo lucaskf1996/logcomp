@@ -6,7 +6,7 @@ class Writer():
         self.assembly = header + "\n"
         self.ifNum = 0
         self.whileNum = 0
-        self.fileName = fileName
+        self.fileName = fileName.rsplit('.', 1)[0]
 
     def write(self, code):
         if("ELSE" in code):
@@ -19,6 +19,6 @@ class Writer():
         with open("end.asm", 'r') as file:
             end = file.read()
         self.assembly += "\n" + end
-        with open(f"{self.fileName}.asm", 'w') as file:
+        with open(self.fileName+".asm", 'w') as file:
             file.write(self.assembly)
         

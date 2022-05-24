@@ -233,7 +233,7 @@ class Parser:
         Parser.symbolTable = SymbolTable()
         Parser.tokens = Tokenizer(Parser.code_cleanup(code))
         Parser.tokens.selectNext()
-        Parser.writer = Writer(fileName[:fileName.find(".")])
+        Parser.writer = Writer(fileName)
         root = Parser.parseBlock()
         if(Parser.tokens.actual.tokenType == "EOF"):
             root.Evaluate(Parser.symbolTable, Parser.writer)
