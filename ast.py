@@ -202,7 +202,6 @@ class PrintOp(Node):
         print(" ) ")
 
     def Evaluate(self, symbolTable, writer):
-        writer.write(f"\n")
         child = self.child.Evaluate(symbolTable, writer)[0]
         writer.write(f"PUSH EBX")
         writer.write(f"CALL print")
@@ -240,14 +239,14 @@ class WhileOp(Node):
         print(" ) ")
     
     def Evaluate(self, symbolTable, writer):
-        writer.write(f"\n")
-        writer.write(f"WHILE{writer.whileNum}:")
+        whileNum = writer.getLoopNum(1)
+        writer.write(f"WHILE{whileNum}:")
         self.children[0].Evaluate(symbolTable, writer)[0]
         writer.write(f"CMP EBX, False")
-        writer.write(f"JE ENDWHILE{writer.whileNum}")
+        writer.write(f"JE ENDWHILE{whileNum}")
         self.children[1].Evaluate(symbolTable, writer)
-        writer.write(f"JMP WHILE{writer.whileNum}")
-        writer.write(f"ENDWHILE{writer.whileNum}")
+        writer.write(f"JMP WHILE{whileNum}")
+        writer.write(f"ENDWHILE{whileNum}")
         return
 
 class IfOp(Node):
@@ -263,15 +262,15 @@ class IfOp(Node):
         print(" ) ")
     
     def Evaluate(self, symbolTable, writer):
+        ifNum = writer.getLoopNum(0)
         self.children[0].Evaluate(symbolTable, writer)[0]
-        writer.write(f"\n")
         writer.write(f"CMP EBX, True")
-        writer.write(f"JNE IF{writer.ifNum};")
+        writer.write(f"JNE IF{ifNum};")
         self.children[2].Evaluate(symbolTable, writer)
-        writer.write(f"JMP ENDIF{writer.ifNum}")
-        writer.write(f"IF{writer.ifNum}:")
+        writer.write(f"JMP ENDIF{ifNum}")
+        writer.write(f"IF{ifNum}:")
         self.children[1].Evaluate(symbolTable, writer)
-        writer.write(f"ENDIF{writer.ifNum}:")
+        writer.write(f"ENDIF{ifNum}:")
         return
 
 class VarDec(Node):

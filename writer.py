@@ -9,10 +9,6 @@ class Writer():
         self.fileName = fileName.rsplit('.', 1)[0]
 
     def write(self, code):
-        if("ELSE" in code):
-            self.ifNum += 1
-        if("WHILE" in code):
-            self.whileNum += 1
         self.assembly+="\n"+code
 
     def end(self):
@@ -22,3 +18,12 @@ class Writer():
         with open(self.fileName+".asm", 'w') as file:
             file.write(self.assembly)
         
+    def getLoopNum(self, loop):
+        if(loop):
+            loopNum = self.whileNum
+            self.whileNum += 1
+        else:
+            loopNum = self.ifNum
+            self.ifNum += 1
+        
+        return loopNum
