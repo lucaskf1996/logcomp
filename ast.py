@@ -103,6 +103,7 @@ class BinOp(Node):
         else:
             raise Exception("Evaluate Error")
 
+
 class UnOp(Node):
     def __init__(self, value, children):
         self.value = value
