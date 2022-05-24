@@ -23,18 +23,21 @@ class BinOp(Node):
         if self.value == "PLUS":
             if(child1[1] == child2[1] == "int"):
                 writer.write(f"ADD EAX, EBX")
+                writer.write(f"MOV EBX, EAX")
                 return (child1[0] + child2[0], "int")
             else:
                 raise Exception("cannot make operation with str")
         elif self.value == "MINUS":
             if(child1[1] == child2[1] == "int"):
                 writer.write(f"SUB EAX, EBX")
+                writer.write(f"MOV EBX, EAX")
                 return (child1[0] - child2[0], "int")
             else:
                 raise Exception("cannot make operation with str")
         elif self.value == "MULT":
             if(child1[1] == child2[1] == "int"):
                 writer.write(f"IMUL EAX, EBX")
+                writer.write(f"MOV EBX, EAX")
                 return (child1[0] * child2[0], "int")
             else:
                 raise Exception("cannot make operation with str")
