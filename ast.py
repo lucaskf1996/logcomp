@@ -163,6 +163,7 @@ class IdOp(Node):
 class Block(Node):
     def __init__(self):
         self.children = []
+        self.value = "block"
 
     def __repr__(self):
         print("Block children -> ( ")
@@ -211,6 +212,7 @@ class AssignOp(Node):
 
 class WhileOp(Node):
     def __init__(self, children):
+        self.value = "while"
         self.children = children
 
     def __repr__(self):
@@ -220,13 +222,14 @@ class WhileOp(Node):
         print(" ) ")
     
     def Evaluate(self, symbolTable, funcTable):
-        while(self.children[0].Evaluate(symbolTable)[0]):
+        while(self.children[0].Evaluate(symbolTable, funcTable)[0]):
             # self.children[1].__repr__()
-            self.children[1].Evaluate(symbolTable)
+            self.children[1].Evaluate(symbolTable, funcTable)
         return
 
 class IfOp(Node):
-    def __init__(self, children, funcTable):
+    def __init__(self, children):
+        self.value = "if"
         self.children = children
 
     def __repr__(self):
@@ -237,11 +240,11 @@ class IfOp(Node):
             self.children[2].__repr__()
         print(" ) ")
     
-    def Evaluate(self, symbolTable):
-        if(self.children[0].Evaluate(symbolTable)[0]):
-            self.children[1].Evaluate(symbolTable)
+    def Evaluate(self, symbolTable, funcTable):
+        if(self.children[0].Evaluate(symbolTable, funcTable)[0]):
+            self.children[1].Evaluate(symbolTable, funcTable)
         else:
-            self.children[2].Evaluate(symbolTable)
+            self.children[2].Evaluate(symbolTable, funcTable)
         return
 
 class VarDec(Node):
@@ -264,6 +267,8 @@ class VarDec(Node):
             symbolTable.create(i.value, self.value)
 
 class ScanOp(Node):
+    def __init__(self):
+        self.value = "scan"
 
     def __repr__(self):
         print("SCAN")
