@@ -1,5 +1,6 @@
-from ast import (Node, BinOp, UnOp, IntVal, StrVal, IdOp, NoOp, Block, PrintOp, AssignOp, WhileOp, IfOp, VarDec, ScanOp)
+from ast import (Node, BinOp, UnOp, IntVal, StrVal, IdOp, NoOp, Block, PrintOp, AssignOp, WhileOp, IfOp, VarDec, ScanOp, Program, FuncDec, FuncCall, ReturnOp)
 from st import SymbolTable
+from ft import FunctionTable
 from tokens import (Token, Tokenizer)
 import re
 
@@ -7,8 +8,77 @@ class Parser:
 
     tokens = None
 
+    def parseProgram():
+        # Parser.tokens.selectNext()
+        node = Program()
+        while(Parser.tokens.actual.tokenType != "EOF"):
+            # print(Parser.tokens.actual.tokenType)
+            node.addChild(Parser.parseDeclaration())
+        node.addChild(FuncCall("main", []))
+        return node
+
+    def parseDeclaration():
+        # print(Parser.tokens.actual.tokenType)
+        # Parser.tokens.selectNext()
+        if(Parser.tokens.actual.tokenType == "TYPE"):
+            declType = Parser.tokens.actual.tokenValue
+            Parser.tokens.selectNext()
+            if(Parser.tokens.actual.tokenType == "ID"):
+                declId = Parser.tokens.actual.tokenValue
+                Parser.tokens.selectNext()
+                if(Parser.tokens.actual.tokenType == "OP"):
+                    Parser.tokens.selectNext()
+                    args = []
+                    if(Parser.tokens.actual.tokenType != "CP"):
+                        if(Parser.tokens.actual.tokenType == "TYPE"):
+                            child = VarDec(Parser.tokens.actual.tokenValue)
+                            Parser.tokens.selectNext()
+                            if(Parser.tokens.actual.tokenType == "ID"):
+                                child.addChild(IdOp(Parser.tokens.actual.tokenValue))
+                                # child.__repr__()
+                                Parser.tokens.selectNext()
+                                args.append(child)
+                                while(Parser.tokens.actual.tokenType == "COMMA"):
+                                    Parser.tokens.selectNext()
+                                    if(Parser.tokens.actual.tokenType == "TYPE"):
+                                        child = VarDec(Parser.tokens.actual.tokenValue)
+                                        Parser.tokens.selectNext()
+                                        if(Parser.tokens.actual.tokenType == "ID"):
+                                            child.addChild(IdOp(Parser.tokens.actual.tokenValue))
+                                            args.append(child)
+                                            # child.__repr__()
+                                            Parser.tokens.selectNext()
+                                        else:
+                                            raise Exception("invalid sequence")
+                                    else:
+                                        raise Exception("invalid sequence")
+                                if(Parser.tokens.actual.tokenType == "CP"):
+                                    Parser.tokens.selectNext()
+                                    # print(Parser.tokens.actual.tokenType)
+                                    # print(declId, declType)
+                                    node = FuncDec([declId, declType], args, Parser.parseBlock())
+                                    return node
+                                else:
+                                    raise Exception("invalid sequence")
+                            else:
+                                raise Exception("invalid sequence")
+                    elif(Parser.tokens.actual.tokenType == "CP"):
+                        Parser.tokens.selectNext()
+                        node = FuncDec([declId,declType], args, Parser.parseBlock())
+                        return node
+                    else:
+                        raise Exception("invalid sequence")
+                else:
+                    raise Exception("invalid sequence")
+            else:
+                raise Exception("invalid sequence")
+        else:
+            raise Exception("invalid sequence")
+        raise Exception("invalid sequence")
+
     def Factor():
         # print(Parser.tokens.actual.tokenType)
+        # print(f"{Parser.tokens.actual.tokenValue}   {Parser.tokens.actual.tokenType}")
         Parser.tokens.selectNext()
         # print("Factor"+Parser.tokens.actual.tokenType)
         if(Parser.tokens.actual.tokenType == "NUM"):
@@ -19,9 +89,37 @@ class Parser:
             node = StrVal(Parser.tokens.actual.tokenValue)
             Parser.tokens.selectNext()
         elif(Parser.tokens.actual.tokenType == "ID"):
-            node = IdOp(Parser.tokens.actual.tokenValue)
-            # print("identifier")
+            # print("teste  ", Parser.tokens.actual.tokenType)
+            id = Parser.tokens.actual.tokenValue
             Parser.tokens.selectNext()
+            if(Parser.tokens.actual.tokenType == "OP"):
+                Parser.tokens.smallLook()
+                args = []
+                if(Parser.tokens.actual.tokenType != "CP"):
+                    while(Parser.tokens.actual.tokenType != "CP"):
+                        child = Parser.parseRelationalExpression()
+                        # print(type(child))
+                        args.append(child)
+                        if(Parser.tokens.actual.tokenType == "COMMA"):
+                            child = Parser.parseRelationalExpression()
+                            # print(type(child))
+                            args.append(child)
+                            if(Parser.tokens.actual.tokenType == "CP"):
+                                node = FuncCall(id, args)
+                            else:
+                                raise Exception("invalid sequence")
+                        else:
+                            raise Exception("invalid sequence")
+                    Parser.tokens.selectNext()
+                elif(Parser.tokens.actual.tokenType == "CP"):
+                    node = FuncCall(id, [])
+                    Parser.tokens.selectNext()
+                    # print("teste25  ", Parser.tokens.actual.tokenType)
+                else:
+                    raise Exception("invalid sequence")
+            else:
+                # print("teste  ", Parser.tokens.actual.tokenType)
+                node = IdOp(id)
         elif(Parser.tokens.actual.tokenType == "MINUS"):
             node = UnOp(Parser.tokens.actual.tokenType, Parser.Factor())
             # Parser.tokens.selectNext()
@@ -99,17 +197,12 @@ class Parser:
 
     def parseBlock():
         node = Block()
-        # print("lol" + Parser.tokens.actual.tokenType)
         if(Parser.tokens.actual.tokenType == "OBLOCK"):
             Parser.tokens.selectNext()
             while(Parser.tokens.actual.tokenType != "CBLOCK"):
-                # node.__repr__()
                 if(Parser.tokens.actual.tokenType == "EOF"):
                     raise Exception("Block not closed")
                 node.addChild(Parser.parseStatement())
-                # print("teste"+Parser.tokens.actual.tokenType)
-                # print("teste"+Parser.tokens.actual.tokenType)
-                # node.__repr__()
             Parser.tokens.selectNext()
         else:
             raise Exception("Block not opened")
@@ -132,6 +225,7 @@ class Parser:
                         Parser.tokens.selectNext()
                         if(Parser.tokens.actual.tokenType == "ID"):
                             node.addChild(IdOp(Parser.tokens.actual.tokenValue))
+
                             Parser.tokens.selectNext()
                         else:
                             raise Exception("not a valid variable")
@@ -141,10 +235,12 @@ class Parser:
             else:
                 raise Exception("not a valid variable")
         elif(Parser.tokens.actual.tokenType == "ID"):
-            node = IdOp(Parser.tokens.actual.tokenValue)
+            id = Parser.tokens.actual.tokenValue
             Parser.tokens.selectNext()
             # print(Parser.tokens.actual.tokenType)
             if(Parser.tokens.actual.tokenType == "EQUAL"):
+                # print(id)
+                node = IdOp(id)
                 node = AssignOp([node, Parser.parseRelationalExpression()], "=")
                 if(Parser.tokens.actual.tokenType == "SC"):
                     Parser.tokens.selectNext()
@@ -152,6 +248,41 @@ class Parser:
                 else:
                     # print(Parser.tokens.actual.tokenType)
                     raise Exception("missing semi colon")
+            elif(Parser.tokens.actual.tokenType == "OP"):
+                Parser.tokens.smallLook()
+                args = []
+                if(Parser.tokens.actual.tokenType != "CP"):
+                    while(Parser.tokens.actual.tokenType != "CP"):
+                        args.append(Parser.parseRelationalExpression())
+                        if(Parser.tokens.actual.tokenType == "COMMA"):
+                            args.append(Parser.parseRelationalExpression())
+                            if(Parser.tokens.actual.tokenType == "CP"):
+                                node = FuncCall(id, args)
+                            else:
+                                raise Exception("invalid sequence")
+                        else:
+                            raise Exception("invalid sequence")
+                    Parser.tokens.selectNext()
+                elif(Parser.tokens.actual.tokenType == "CP"):
+                    node = FuncCall(id, [])
+                    Parser.tokens.selectNext()
+                else:
+                    raise Exception("invalid sequence")
+            else:
+                raise Exception("invalid sequence")
+        elif(Parser.tokens.actual.tokenType == "RETURN"):
+            Parser.tokens.selectNext()
+            if(Parser.tokens.actual.tokenType == "OP"):
+                # Parser.tokens.selectNext()
+                node = ReturnOp("return", Parser.parseRelationalExpression())
+                if(Parser.tokens.actual.tokenType == "CP"):
+                    Parser.tokens.selectNext()
+                    if(Parser.tokens.actual.tokenType == "SC"):
+                        Parser.tokens.selectNext()
+                    else:
+                        raise Exception("invalid sequence")
+                else:
+                    raise Exception("invalid sequence")
             else:
                 raise Exception("invalid sequence")
         elif(Parser.tokens.actual.tokenType == "PRINTF"):
@@ -230,19 +361,11 @@ class Parser:
                     
     def run(code):
         Parser.symbolTable = SymbolTable()
+        Parser.functionTable = FunctionTable()
         Parser.tokens = Tokenizer(Parser.code_cleanup(code))
         Parser.tokens.selectNext()
-        root = Parser.parseBlock()
+        root = Parser.parseProgram()
         if(Parser.tokens.actual.tokenType == "EOF"):
-            asm_code = root.Evaluate(Parser.symbolTable)
-            with open("header.asm", 'r') as file:
-                header = file.read()
-            with open("end.asm", 'r') as file:
-                end = file.read()
-            assembly = header + asm_code + end
-            with open("code.asm", 'w') as file:
-                file.write(assembly)
-
-
+            root.Evaluate(Parser.symbolTable, Parser.functionTable)
         else:
             raise Exception("invalid sequence")
