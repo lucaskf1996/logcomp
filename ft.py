@@ -1,4 +1,4 @@
-class SymbolTable:
+class FunctionTable:
     def __init__(self):
         self.table = {}
     
@@ -9,14 +9,9 @@ class SymbolTable:
             raise Exception("variable is not declared")
     
     def setValue(self, identifier, value):
+        # print(value)
         if(identifier in self.table.keys()):
-            if(self.table[identifier][1] == "int" and value[1] == "int"):
-                self.table[identifier][0] = value[0]
-            else:
-                if(value[1] == "str"):
-                    self.table[identifier][0] = value[0]
-                else:
-                    raise Exception("cannot add an int to a str variable")
+            self.table[identifier][0] = value
         else:
             raise Exception("variable is not declared")
 
@@ -27,5 +22,5 @@ class SymbolTable:
             self.table[identifier] = [None, "int"]
         elif(value == 1):
             self.table[identifier] = [None, "str"]
-        else:
-            raise Exception("invalid variable type")
+        elif(value == 2):
+            self.table[identifier] = [None, "void"]
